@@ -1,32 +1,33 @@
-#include <rclcpp/rclcpp.hpp>
-// #include <tf/transform_listener.h>
-// #include <tf/transform_broadcaster.h>
-#include <geometry_msgs/msg/pose.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <nav_msgs/msg/path.hpp>
-#include <mavros_msgs/msg/landing_target.hpp>
+#include <ros/ros.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Path.h>
+#include <mavros_msgs/LandingTarget.h>
 
 #include <string.h>
 
 int main(int argc, char** argv)
 {
-  rclcpp::init(argc, argv);
+  ros::init(argc, argv, "vision_to_mavros");
 
-  auto node = rclcpp::Node::make_shared("vision_to_mavros");
+  ros::NodeHandle node;
 
   //////////////////////////////////////////////////
   // Variables for precision navigation
   //////////////////////////////////////////////////
-  auto camera_pose_publisher = node->create_publisher<geometry_msgs::msg::PoseStamped>("vision_pose", 10);
-  auto body_path_pubisher = node->create_publisher<nav_msgs::msg::Path>("body_frame/path", 1);
+  ros::Publisher camera_pose_publisher = node.advertise<geometry_msgs::PoseStamped>("vision_pose", 10);
+
+  ros::Publisher body_path_pubisher = node.advertise<nav_msgs::Path>("body_frame/path", 1);
 
   tf::TransformListener tf_listener;
 
   tf::StampedTransform transform;
 
-  geometry_msgs::msg::PoseStamped msg_body_pose;
+  geometry_msgs::PoseStamped msg_body_pose;
 
-  nav_msgs::msg::Path body_path;
+  nav_msgs::Path body_path;
 
   std::string target_frame_id = "/camera_odom_frame";
 
@@ -37,75 +38,74 @@ int main(int argc, char** argv)
   // Read parameters from launch file, including: target_frame_id, source_frame_id, output_rate
   {
     // The frame in which we find the transform into, the original "world" frame
-
-    if (node->get_parameter("target_frame_id", target_frame_id))
+    if (node.getParam("target_frame_id", target_frame_id))
     {
-      RCLCPP_INFO(node->get_logger(), "Get target_frame_id parameter: %s\n", target_frame_id.c_str());
+      ROS_INFO("Get target_frame_id parameter: %s", target_frame_id.c_str());
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default target_frame_id: %s\n", target_frame_id.c_str());
+      ROS_WARN("Using default target_frame_id: %s", target_frame_id.c_str());
     }
 
     // The frame for which we find the tranform to target_frame_id, the original "camera" frame
-    if (node->get_parameter("source_frame_id", source_frame_id))
+    if (node.getParam("source_frame_id", source_frame_id))
     {
-      RCLCPP_INFO(node->get_logger(), "Get source_frame_id parameter: %s\n", source_frame_id.c_str());
+      ROS_INFO("Get source_frame_id parameter: %s", source_frame_id.c_str());
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default source_frame_id: %s\n", source_frame_id.c_str());
+      ROS_WARN("Using default source_frame_id: %s", source_frame_id.c_str());
     }
 
     // The rate at which we wish to publish final pose data
-    if (node->get_parameter("output_rate", output_rate))
+    if (node.getParam("output_rate", output_rate))
     {
-      RCLCPP_INFO(node->get_logger(), "Get output_rate parameter: %f\n", output_rate);
+      ROS_INFO("Get output_rate parameter: %f", output_rate);
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default output_rate: %f\n", output_rate);
+      ROS_WARN("Using default output_rate: %f", output_rate);
     }
 
     // The rotation around z axis between original world frame and target world frame, assuming the z axis needs not to
     // be changed In this case, target world frame has y forward, x to the right and z upwards (ENU as ROS dictates)
-    if (node->get_parameter("gamma_world", gamma_world))
+    if (node.getParam("gamma_world", gamma_world))
     {
-      RCLCPP_INFO(node->get_logger(), "Get gamma_world parameter: %f\n", gamma_world);
+      ROS_INFO("Get gamma_world parameter: %f", gamma_world);
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default gamma_world: %f\n", gamma_world);
+      ROS_WARN("Using default gamma_world: %f", gamma_world);
     }
 
     // The roll angle around camera's own axis to align with body frame
-    if (node->get_parameter("roll_cam", roll_cam))
+    if (node.getParam("roll_cam", roll_cam))
     {
-      RCLCPP_INFO(node->get_logger(), "Get roll_cam parameter: %f\n", roll_cam);
+      ROS_INFO("Get roll_cam parameter: %f", roll_cam);
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default roll_cam: %f\n", roll_cam);
+      ROS_WARN("Using default roll_cam: %f", roll_cam);
     }
 
     // The pitch angle around camera's own axis to align with body frame
-    if (node->get_parameter("pitch_cam", pitch_cam))
+    if (node.getParam("pitch_cam", pitch_cam))
     {
-      RCLCPP_INFO(node->get_logger(), "Get pitch_cam parameter: %f\n", pitch_cam);
+      ROS_INFO("Get pitch_cam parameter: %f", pitch_cam);
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default pitch_cam: %f\n", pitch_cam);
+      ROS_WARN("Using default pitch_cam: %f", pitch_cam);
     }
 
     // The yaw angle around camera's own axis to align with body frame
-    if (node->get_parameter("yaw_cam", yaw_cam))
+    if (node.getParam("yaw_cam", yaw_cam))
     {
-      RCLCPP_INFO(node->get_logger(), "Get yaw_cam parameter: %f\n", yaw_cam);
+      ROS_INFO("Get yaw_cam parameter: %f", yaw_cam);
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default yaw_cam: %f\n", yaw_cam);
+      ROS_WARN("Using default yaw_cam: %f", yaw_cam);
     }
   }
 
@@ -118,56 +118,56 @@ int main(int argc, char** argv)
 
   std::string precland_camera_frame_id = "/camera_fisheye2_optical_frame";
 
-  rclcpp::Publisher<mavros_msgs::msg::LandingTarget>::SharedPtr precland_msg_publisher;
+  ros::Publisher precland_msg_publisher;
 
-  if (node->get_parameter("enable_precland", enable_precland))
+  if (node.getParam("enable_precland", enable_precland))
   {
-    RCLCPP_INFO(node->get_logger(), "Precision landing: %s\n", enable_precland ? "enabled" : "disabled");
+    ROS_INFO("Precision landing: %s", enable_precland ? "enabled" : "disabled");
   }
   else
   {
-    RCLCPP_INFO(node->get_logger(), "Precision landing disabled by default\n");
+    ROS_INFO("Precision landing disabled by default");
   }
 
   if (enable_precland)
   {
     // The frame of the landing target in the camera frame
-    if (node->get_parameter("precland_target_frame_id", precland_target_frame_id))
+    if (node.getParam("precland_target_frame_id", precland_target_frame_id))
     {
-      RCLCPP_INFO(node->get_logger(), "Get precland_target_frame_id parameter: %s\n", precland_target_frame_id.c_str());
+      ROS_INFO("Get precland_target_frame_id parameter: %s", precland_target_frame_id.c_str());
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default precland_target_frame_id: %s\n", precland_target_frame_id.c_str());
+      ROS_WARN("Using default precland_target_frame_id: %s", precland_target_frame_id.c_str());
     }
 
-    if (node->get_parameter("precland_camera_frame_id", precland_camera_frame_id))
+    if (node.getParam("precland_camera_frame_id", precland_camera_frame_id))
     {
-      RCLCPP_INFO(node->get_logger(), "Get precland_camera_frame_id parameter: %s\n", precland_camera_frame_id.c_str());
+      ROS_INFO("Get precland_camera_frame_id parameter: %s", precland_camera_frame_id.c_str());
     }
     else
     {
-      RCLCPP_WARN(node->get_logger(), "Using default precland_camera_frame_id: %s\n", precland_camera_frame_id.c_str());
+      ROS_WARN("Using default precland_camera_frame_id: %s", precland_camera_frame_id.c_str());
     }
 
-    precland_msg_publisher = node->create_publisher<mavros_msgs::msg::LandingTarget>("landing_raw", 10);
+    precland_msg_publisher = node.advertise<mavros_msgs::LandingTarget>("landing_raw", 10);
   }
 
   //////////////////////////////////////////////////
   // Wait for the first transform to become available.
   //////////////////////////////////////////////////
-  tf_listener.waitForTransform(target_frame_id, source_frame_id, node->get_clock()->now(), rclcpp::Duration(3.0));
+  tf_listener.waitForTransform(target_frame_id, source_frame_id, ros::Time::now(), ros::Duration(3.0));
 
-  rclcpp::Time last_tf_time = node->get_clock()->now();
-  rclcpp::Time last_precland_tf_time = node->get_clock()->now();
+  ros::Time last_tf_time = ros::Time::now();
+  ros::Time last_precland_tf_time = ros::Time::now();
 
   // Limit the rate of publishing data, otherwise the other telemetry port might be flooded
-  rclcpp::Rate rate(output_rate);
+  ros::Rate rate(output_rate);
 
-  while (rclcpp::ok())
+  while (node.ok())
   {
     // For tf, Time(0) means "the latest available" transform in the buffer.
-    rclcpp::Time now = rclcpp::Time(0);
+    ros::Time now = ros::Time(0);
 
     //////////////////////////////////////////////////
     // Publish vision_position_estimate message if transform is available
@@ -232,8 +232,8 @@ int main(int argc, char** argv)
     }
     catch (tf::TransformException ex)
     {
-      RCLCPP_WARN(node->get_logger(), "%s\n", ex.what());
-      rclcpp::Duration(1.0).sleep();
+      ROS_WARN("%s", ex.what());
+      ros::Duration(1.0).sleep();
     }
 
     //////////////////////////////////////////////////
@@ -252,24 +252,24 @@ int main(int argc, char** argv)
         {
           last_precland_tf_time = transform.stamp_;
 
-          mavros_msgs::msg::LandingTarget msg_landing_target;
+          mavros_msgs::LandingTarget msg_landing_target;
 
           // Setup the landing target message according to the relative protocol:
           // https://mavlink.io/en/services/landing_target.html#camera_image_relative
           msg_landing_target.header.frame_id = transform.frame_id_;
           msg_landing_target.header.stamp = transform.stamp_;
           msg_landing_target.target_num = 0;
-          msg_landing_target.frame = mavros_msgs::msg::LandingTarget::LOCAL_NED;
-          msg_landing_target.type = mavros_msgs::msg::LandingTarget::VISION_FIDUCIAL;
+          msg_landing_target.frame = mavros_msgs::LandingTarget::LOCAL_NED;
+          msg_landing_target.type = mavros_msgs::LandingTarget::VISION_FIDUCIAL;
 
           msg_landing_target.angle[0] = std::atan(transform.getOrigin().getX() / transform.getOrigin().getZ());
           msg_landing_target.angle[1] = std::atan(transform.getOrigin().getY() / transform.getOrigin().getZ());
           msg_landing_target.distance = transform.getOrigin().length();
 
           // Publish the message
-          precland_msg_publisher->publish(msg_landing_target);
+          precland_msg_publisher.publish(msg_landing_target);
 
-          RCLCPP_INFO(node->get_logger(), "Landing target detected\n");
+          ROS_INFO("Landing target detected");
         }
       }
     }
