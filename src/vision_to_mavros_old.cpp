@@ -18,7 +18,6 @@ int main(int argc, char** argv)
   // Variables for precision navigation
   //////////////////////////////////////////////////
   ros::Publisher camera_pose_publisher = node.advertise<geometry_msgs::PoseStamped>("vision_pose", 10);
-
   ros::Publisher body_path_pubisher = node.advertise<nav_msgs::Path>("body_frame/path", 1);
 
   tf::TransformListener tf_listener;
@@ -174,7 +173,7 @@ int main(int argc, char** argv)
     //////////////////////////////////////////////////
     try
     {
-      lookupTransform(frame_2, frame_1, at_this_time, this_transform)
+      //lookupTransform(frame_2, frame_1, at_this_time, this_transform)
           //    will give the transfrom from frame_1 to frame_2
           tf_listener.lookupTransform(target_frame_id, source_frame_id, now, transform);
 
