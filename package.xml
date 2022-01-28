@@ -3,7 +3,7 @@
 <package format="3">
   <name>vision_to_mavros</name>
   <version>0.5.0</version>
-  <description>The vision_to_mavros package.</description>
+  <description>The ROS2 vision_to_mavros package.</description>
   <maintainer email="patrick@wargdrones.com">Patrick Oetken</maintainer>
   <license>TODO</license>
 
@@ -13,24 +13,17 @@
 
   <!-- <build_depend>builtin_interfaces</build_depend> -->
   <build_depend>geometry_msgs</build_depend>
-  <!-- <build_depend>tf</build_depend> -->
-  <!-- <build_depend>std_msgs</build_depend> -->
   <build_depend>nav_msgs</build_depend>
   <build_depend>mavros_msgs</build_depend>
 
-
-
   <!-- <exec_depend>builtin_interfaces</exec_depend> -->
   <exec_depend>geometry_msgs</exec_depend>
-  <!-- <exec_depend>tf</exec_depend> -->
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>mavros_msgs</exec_depend>
 
   <depend>rclcpp</depend>
   <depend>tf2_ros</depend>
-  <depend>tf2</depend>
   <depend>tf2_geometry_msgs</depend>
-
   
   <!-- <exec_depend>rosidl_default_runtime</exec_depend> -->
   <!-- <exec_depend>std_msgs</exec_depend> -->
