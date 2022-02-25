@@ -55,23 +55,25 @@ def generate_launch_description():
         executable='vision_to_mavros',
         output='screen',
         emulate_tty=True,
-        name='apriltags_to_mavros',
+        name='vision_to_mavros',
         # namespace=camera_name,
         parameters=[
-            # Some parameters from a yaml file
-            # params_file,   # TODO: does not work
-            # A few more parameters
             {
-                "target_frame_id": "camera",  # / is not allowed in TF2
-                "source_frame_id": "rgb_camera_frame",  # / is not allowed in TF2
+                # target_frame_id must matches the tag’s name
+                "target_frame_id": "36h11:1",
+                # source_frame_id must matches the camera_frame used in apriltag_ros
+                "source_frame_id": "rgb_camera_frame",
+                # enable publishing precision landing messages
                 "enable_precland": True,
-                "precland_target": "landing_target",
-                "precland_camera_frame_id": "camera",  # / is not allowed in TF2
+                # precland_target_frame_id must matches the tag’s name
+                "precland_target_frame_id": "36h11:1",
+                # precland_camera_frame_id in  must matches camera_frame used in apriltag_ros
+                "precland_camera_frame_id": "rgb_camera_frame",
                 "roll_cam": 0.0,
                 "pitch_cam": -1.5707963,
                 "yaw_cam": 0.0,
                 "gamma_world": -1.5707963,
-                "output_rate": 30.0
+                "output_rate": 10.0
                 # 'vision_pose': '/mavros/vision_pose/pose',
             }
         ],

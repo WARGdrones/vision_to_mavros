@@ -130,11 +130,11 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////
   // Variables for precision landing (optional)
   //////////////////////////////////////////////////
-  bool enable_precland = false;
+  bool enable_precland = true;
 
-  std::string precland_target_frame_id = "landing_target";
+  std::string precland_target_frame_id = "36h11:1";
 
-  std::string precland_camera_frame_id = "camera_fisheye2_optical_frame";
+  std::string precland_camera_frame_id = "camera_frame";
 
   rclcpp::Publisher<mavros_msgs::msg::LandingTarget>::SharedPtr precland_msg_publisher;
 
